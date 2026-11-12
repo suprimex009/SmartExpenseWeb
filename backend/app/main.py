@@ -323,7 +323,7 @@ def set_session_cookie(
         max_age=SESSION_MAX_AGE,
         httponly=True,
         secure=SESSION_COOKIE_SECURE,
-        samesite="lax",
+        samesite="none",
         path="/",
     )
 
@@ -620,7 +620,7 @@ def logout(
         path="/",
         httponly=True,
         secure=SESSION_COOKIE_SECURE,
-        samesite="lax",
+        samesite="none",
     )
 
     response.status_code = 204
