@@ -1,123 +1,206 @@
 # Moneta — Smart Expense Tracker
 
-Moneta is a responsive React/Vite finance dashboard backed by FastAPI and SQLite. It supports sign-in and public account registration; each account has private transactions, budgets, and analytics.
+Moneta is a full-stack personal finance management web application designed to help users track income, expenses, budgets, and spending patterns through a responsive dashboard.
 
-## Database and account setup
+Built with **React, Vite, FastAPI, and PostgreSQL**, Moneta supports individual user accounts and keeps each user's financial records separate.
 
-The backend uses an existing SQLite database selected with the
-`SMART_EXPENSE_DB` environment variable. Keep the database and all backups
-outside this repository; they are ignored by Git as an additional safeguard.
+## Live Demo
 
-The first-owner setup command opens a small dialog for your email and password. Password characters are masked in the dialog. It automatically makes another verified, timestamped backup immediately before updating the database. It:
+- **Frontend:** https://moneta-frontend.onrender.com
+- **Backend API:** https://moneta-backend-i7qa.onrender.com
+- **API Documentation:** https://moneta-backend-i7qa.onrender.com/docs
 
-- Adds an account ID to existing transactions and assigns those rows to the first owner.
-- Copies the existing monthly budget into the account-specific budget table.
-- Leaves the original `monthly_budgets` table and its data intact.
-- Adds account/session tables; it does not delete transactions.
-- Creates an SQLite trigger so rows added later by the legacy desktop app are assigned to the owner rather than becoming visible to other accounts.
+*The backend is hosted on Render's free tier and may take a short time to wake up after inactivity.*
 
-Use the first-owner command only once. It opens a local dialog for your email
-and password. Passwords are hashed with Argon2 and are not saved as plain text.
-Afterward, other people can register their own accounts. They will not see your
-data.
+## Features
 
-## Install on Windows
+- User registration, login, and logout.
+- Individual user accounts and private financial records.
+- Add and manage income and expense transactions.
+- Categorize and search transactions.
+- Create and manage budgets.
+- Dashboard with financial summaries.
+- Spending analytics and charts.
+- CSV transaction export.
+- Responsive interface for desktop and mobile.
 
-Install Node.js LTS if it is not already installed, then reopen the VS Code terminal:
+## Technology Stack
 
-```powershell
-winget install --id OpenJS.NodeJS.LTS
+| Component | Technology |
+|---|---|
+| Frontend | React, Vite |
+| Styling | Tailwind CSS |
+| Backend | Python, FastAPI |
+| Database | Supabase PostgreSQL |
+| Database driver | Psycopg 3 |
+| Charts | Recharts |
+| Icons | Lucide React |
+| Hosting | Render |
+| Database hosting | Supabase |
+
+## Architecture
+
+Moneta uses a separate frontend and backend architecture.
+
+1. The React frontend provides the user interface.
+2. The frontend communicates with the FastAPI backend through HTTP API requests.
+3. The backend validates requests and manages authentication and financial records.
+4. PostgreSQL stores user accounts, transactions, and budgets.
+5. User-specific queries keep financial records isolated between accounts.
+
+## Deployment
+
+- **Frontend hosting:** Render Static Site.
+- **Backend hosting:** Render Web Service.
+- **Database:** Supabase PostgreSQL, Mumbai region.
+- **Frontend/backend communication:** HTTPS API requests with credentialed sessions.
+
+## Local Development Setup
+
+### Prerequisites
+
+- Python 3.11 or newer.
+- Node.js LTS.
+- Git.
+- A PostgreSQL database.
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/suprimex009/SmartExpenseWeb.git
+cd SmartExpenseWeb
 ```
 
-Install backend dependencies:
+### 2. Configure the backend
 
 ```powershell
-cd "C:\path\to\SmartExpenseWeb\backend"
+cd backend
 py -m venv .venv
-.\.venv\Scripts\Activate.ps1
+.venv\Scripts\activate
 python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
-If PowerShell blocks activation, allow it for the current terminal only:
+Create a `.env` file using the supplied template:
 
 ```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-.\.venv\Scripts\Activate.ps1
+Copy-Item .env.example .env
 ```
 
-Install frontend dependencies in another terminal:
+Edit `.env` and configure the following variables with your own values:
 
-```powershell
-cd "C:\path\to\SmartExpenseWeb\frontend"
-npm install
+```dotenv
+DATABASE_URL=YOUR_POSTGRESQL_CONNECTION_STRING
+MONETA_SECRET_KEY=YOUR_PRIVATE_SECRET_KEY
+MONETA_COOKIE_SECURE=false
+MONETA_CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 ```
 
-## Create your owner account
-
-In the backend terminal, select the existing database and run the one-time setup. Enter the email and password in the dialog window that opens; password characters appear as masking symbols:
+Generate a signing secret using:
 
 ```powershell
-cd "C:\path\to\SmartExpenseWeb\backend"
-.\.venv\Scripts\Activate.ps1
-$env:SMART_EXPENSE_DB = "C:\path\to\your\expenses.db"
-python -m app.bootstrap_owner
+py -c "import secrets; print(secrets.token_urlsafe(48))"
 ```
 
-Set `SMART_EXPENSE_DB` to the path of your existing SQLite database. Choose a
-unique password with at least 12 characters. Do not send your password in chat
-or commit it to source control.
+Keep your actual `.env` file private. Never commit database passwords or signing secrets.
 
-## Run locally
+### 3. Start the backend
 
-Generate a signing secret and start the backend in terminal 1:
+From the `backend` directory:
 
 ```powershell
-cd "C:\path\to\SmartExpenseWeb\backend"
-.\.venv\Scripts\Activate.ps1
-$env:SMART_EXPENSE_DB = "C:\path\to\your\expenses.db"
-$env:MONETA_SECRET_KEY = (py -c "import secrets; print(secrets.token_urlsafe(48))")
 python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-The secret is for signing browser sessions. On a hosted server, configure one persistent, private `MONETA_SECRET_KEY` in the hosting provider's secret/environment settings; do not generate a new one on each restart.
+Backend API:
 
-Start the frontend in terminal 2:
+`http://127.0.0.1:8000`
+
+API documentation:
+
+`http://127.0.0.1:8000/docs`
+
+### 4. Install and start the frontend
+
+Open another terminal:
 
 ```powershell
-cd "C:\path\to\SmartExpenseWeb\frontend"
+cd frontend
+npm install
+```
+
+Create a frontend `.env` file containing:
+
+```dotenv
+VITE_API_BASE_URL=http://127.0.0.1:8000
+```
+
+Start the frontend:
+
+```powershell
 npm run dev
 ```
 
-Open <http://127.0.0.1:5173>. Keep both terminals open. The API docs are available at <http://127.0.0.1:8000/docs>.
+Open:
 
-## Before making it public on the internet
+`http://localhost:5173`
 
-The app now has per-account data isolation, Argon2 password hashes, signed `HttpOnly`/`SameSite=Lax` session cookies, exact-origin checks for write requests, and explicit CORS origins. Public registration creates a separate account; it does not grant access to the owner's records.
+Keep both development servers running while using the application.
 
-This is not, by itself, a hosted deployment. Before giving out a public URL:
+## Environment Variables
 
-1. Deploy behind HTTPS and a reverse proxy so the browser app and `/api` use the **same site/origin**. Keep the cookie `SameSite=Lax`; set `MONETA_COOKIE_SECURE=true`.
-2. Set `MONETA_CORS_ORIGINS` to the exact HTTPS website origin(s), with no wildcard. Do not set it to `*`.
-3. Configure `MONETA_SECRET_KEY` and `SMART_EXPENSE_DB` through the host's private settings.
-4. Put the SQLite file on a persistent private disk, outside the public web root. Take encrypted, regular backups and test recovery.
-5. Restrict server/API documentation and add hosting-level abuse/rate controls before inviting the public. SQLite on one persistent server is for a small personal app; use a managed database for a larger public service.
+| Variable | Purpose |
+|---|---|
+| `DATABASE_URL` | PostgreSQL database connection |
+| `MONETA_SECRET_KEY` | Signs browser sessions |
+| `MONETA_COOKIE_SECURE` | Enables secure cookies over HTTPS |
+| `MONETA_CORS_ORIGINS` | Specifies permitted frontend origins |
+| `VITE_API_BASE_URL` | Specifies the backend API address for the frontend |
 
-Never upload `expenses.db`, database backups, owner passwords, or session secrets into a public repository. The web app is for personal finance and is not a substitute for a professional security review before a public launch.
+## Security
 
-## Tests and build
+Moneta includes:
 
-The API tests create temporary databases, including for signup and account-isolation checks:
+- Argon2 password hashing.
+- Signed HTTP-only session cookies.
+- HTTPS and secure-cookie configuration for deployment.
+- Explicit CORS origin configuration.
+- User-specific access to financial records.
+- Environment-based storage of sensitive configuration.
 
-```powershell
-cd "C:\path\to\SmartExpenseWeb\backend"
-.\.venv\Scripts\Activate.ps1
-python -m unittest discover -s tests -v
+The application is a personal finance management project and has not undergone an independent professional security audit.
+
+## Project Structure
+
+```text
+SmartExpenseWeb/
+│
+├── backend/
+│   ├── app/
+│   │   ├── main.py
+│   │   └── ...
+│   ├── requirements.txt
+│   └── .env.example
+│
+├── frontend/
+│   ├── src/
+│   │   ├── App.jsx
+│   │   └── ...
+│   ├── package.json
+│   └── ...
+│
+├── .gitignore
+└── README.md
 ```
 
-Build the production frontend:
+## Future Improvements
 
-```powershell
-cd "C:\path\to\SmartExpenseWeb\frontend"
-npm run build
-```
+- Improved financial reports.
+- Additional data visualizations.
+- Enhanced transaction filtering.
+- Automated recurring transactions.
+- Improved mobile experience.
+
+## Author
+
+Developed as a full-stack software development project to explore modern web technologies, backend API development, database integration, authentication, and deployment.
