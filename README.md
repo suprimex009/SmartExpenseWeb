@@ -23,6 +23,9 @@ Built with **React, Vite, FastAPI, and PostgreSQL**, Moneta supports individual 
 ### Budget Management
 ![Moneta Budgets](docs/screenshots/budgets.png)
 
+### Your Insights
+![Moneta Your Insights](docs/screenshots/Your Insights.png)
+
 ## Features
 
 - User registration, login, and logout.
