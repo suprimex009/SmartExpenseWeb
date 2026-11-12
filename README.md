@@ -12,6 +12,17 @@ Built with **React, Vite, FastAPI, and PostgreSQL**, Moneta supports individual 
 
 *The backend is hosted on Render's free tier and may take a short time to wake up after inactivity.*
 
+## Application Screenshots
+
+### Dashboard
+![Moneta Dashboard](docs/screenshots/dashboard.png)
+
+### Transactions
+![Moneta Transactions](docs/screenshots/transactions.png)
+
+### Budget Management
+![Moneta Budgets](docs/screenshots/budgets.png)
+
 ## Features
 
 - User registration, login, and logout.
