@@ -751,7 +751,7 @@ def list_transactions(
                 WHERE user_id = %s
                   AND category IS NOT NULL
                   AND category <> ''
-                ORDER BY LOWER(category), category
+                ORDER BY category
                 """,
                 (user["id"],),
             ).fetchall()
